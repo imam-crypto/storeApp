@@ -1,0 +1,17 @@
+.card-list {
+  margin-bottom: 10px;
+
+  .card-body {
+    text-decoration: none;
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 40px;
+    color: rgb(8, 83, 83);
+  }
+  a {
+    text-decoration: none;
+  }
+  &:hover {
+    text-decoration: none;
+  }
+}

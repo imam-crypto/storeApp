@@ -1,0 +1,21 @@
+.card-dashboard-product {
+  margin-bottom: 15px;
+  .product-title {
+    font-weight: normal;
+    font-size: 18px;
+    color: black;
+    text-align: center;
+  }
+  .product-category {
+    font-weight: normal;
+    font-size: 16px;
+    color: black;
+    text-align: center;
+  }
+  a {
+    text-decoration: none;
+  }
+  &:hover {
+    text-decoration: none;
+  }
+}
