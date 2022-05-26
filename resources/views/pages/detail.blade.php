@@ -47,14 +47,24 @@
         <div class="container">
           <div class="row">
             <div class="col-lg-8">
-                <h1>Helm</h1>
+                <h1> {{$product->name}} </h1>
                 <div class="owner">
-                  Prabs
+                  {{$product->user->name}}
                 </div>
-                <div class="price">Rp.9000000</div>
+                <div class="price">Rp.{{$product->price}}</div>
             </div>
             <div class="col-lg-2" data-aos="zoom-in">
-              <a href="./cart.html" class="btn btn-success px-4 text-white btn-block mb-2">Add To Cart</a>
+             @auth
+             <form action=" {{route('details-add', $product->id)}} " method="POST" enctype="multipart/form-data">
+               @csrf
+             <button type="submit" class="btn btn-success px-4 text-white btn-block mb-2">Add To Cart</button>
+
+             </form>
+
+             @else
+             <a href=" {{route('login')}} " class="btn btn-success px-4 text-white btn-block mb-2">Sign In To Add </a>
+
+             @endauth
 
             </div>
             </div>
@@ -68,11 +78,9 @@
           <div class="row">
             <div class="col-12 col-lg-8">
               <p>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. At quaerat odio perspiciatis mollitia veniam ullam, eius facilis adipisci sapiente quia, maxime illo. Repudiandae eius perspiciatis maxime, autem eveniet dolorem distinctio!
+            {!! $product->description !!}
               </p>
-              <p>
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Voluptate debitis architecto, aut veniam ea aliquam temporibus magnam quia reiciendis. Aliquid odio voluptatem rem rerum, velit modi nemo distinctio iste non!
-              </p>
+             
             </div>
           </div>
         </div>
@@ -119,6 +127,8 @@
 @endsection
 
 @push('addon-script')
+<script src="{{asset('template')}}/vendor/vue/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
     var gallery = new Vue({
       el: "#gallery",
@@ -127,29 +137,16 @@
 
       },
       data:{
-        activePhoto:1,
+        activePhoto:0,
         photos:
         [
+          @foreach ($product->galleries as $gallery)
           {
-            id:1,
-            url:"./produk/helm3.jpg"
+            id:{{ $gallery->id }},
+            url:"{{url('storage/'.  $gallery->photos)}}"
           },
-          {
-            id:2,
-            url:"./produk/prod1.jpg"
-          },
-          {
-            id:3,
-            url:"./produk/prod2.jpg"
-          },
-          {
-            id:3,
-            url:"./produk/prod2.jpg"
-          },
-          {
-            id:4,
-            url:"./produk/helm.jpeg"
-          },
+
+          @endforeach
         ],
       },
       methods:{

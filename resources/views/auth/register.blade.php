@@ -27,7 +27,7 @@
               </div>
               <div class="form-group">
                 <label>Email</label>
-                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }} " v-model="email" required autocomplete="email">
+                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }} " v-model="email" @change="checkEmail()" :class="{'is-invalid' : this.email_unavailable}" autocomplete="email" required autocomplete="email">
 
                 @error('email')
                     <span class="invalid-feedback" role="alert">
@@ -93,8 +93,8 @@
           @enderror
               <div class="form-group row mb-0">
                 <div class="col-md-6 offset-md-4">
-                    <button type="submit" class="form-control">
-                        {{ __('Register') }}
+                    <button type="submit" class="form-control" :disabled="this.email_unavailable">
+                       Sign Up Now
                     </button>
                 </div>
             </div>
@@ -108,110 +108,110 @@
 
 
 
-<div class="container" style="display: none">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Register') }}</div>
 
-                <div class="card-body">
-                    <form method="POST" action="{{ route('register') }}">
-                        @csrf
-
-                        <div class="form-group row">
-                            <label for="name" class="col-md-4 col-form-label text-md-right">{{ __('Name') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" required autocomplete="name" autofocus>
-
-                                @error('name')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="email" class="col-md-4 col-form-label text-md-right">{{ __('E-Mail Address') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
-
-                                @error('email')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="password" class="col-md-4 col-form-label text-md-right">{{ __('Password') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password">
-
-                                @error('password')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="password-confirm" class="col-md-4 col-form-label text-md-right">{{ __('Confirm Password') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
-                            </div>
-                        </div>
-
-                        <div class="form-group row mb-0">
-                            <div class="col-md-6 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Register') }}
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 @endsection
 @push('addon-script')
 <script src="{{asset('template_admin')}}/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 <script src="{{asset('template_admin')}}/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
 <script src="{{asset('template')}}/vendor/vue/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="https://unpkg.com/vue-toasted"></script>
 
 <script>
 
-    Vue.use(Toasted);
-    var register = new Vue({
-      el:'#register',
-      mounted(){
-      AOS.init();
-       this.$toasted.error(
-         "Maaf, Email Sudah Terdaftar",
-         {
-           position:"top-center",
-           className:"rounded",
-           duration:1000,
-         }
-       );
-      },
-      data:{
-        name:"Prabbs",
-        email:"prabs@gmail.com",
-        password:"",
-        is_store_open:true,
-        store_name:""
+  Vue.use(Toasted);
+  var register = new Vue({
+    el:'#register',
+    mounted(){
+    AOS.init();
+     
+    },
+   methods:{
+     checkEmail:function(){
+       var self = this;
+       axios.get( '{{route('api-register-check')}}',{
+        params: {
+         email : this.email
+       }
+       })
+      .then(function (response) {
+        if(response.data == 'Available'){
+          self.$toasted.show(
+                "Email Dapat Digunakan",
+                {
+                  position:"top-center",
+                  className:"rounded",
+                  duration:1000,
+                }
+              );
+        self.email_unavailable=false;
+
+        }
+        else{
+          self.$toasted.error(
+                "Email Sudah Terdaftar",
+                {
+                  position:"top-center",
+                  className:"rounded",
+                  duration:1000,
+                }
+              );
+          self.email_unavailable=true;
+
+        }
+        console.log(response);
+      })
+     
+     }
+   },
+    data(){
+      return {
+          name:"Prabbs",
+          email:"prabs@gmail.com",
+          is_store_open:true,
+          email_unavailable:false
+      }
+    },
+  });
+
+</script>
+@endpush
+
+{{-- methods:{
+  checkEmail:function(){
+    var self = this;
+    axios.get('{{ route('api-register-check')}} ',{
+      params:{
+        email:this.email
       }
     });
+    .then(function (response) {
+      // handle success
 
-  </script>
-@endpush
+      if(response.data == 'Available'){
+        self.$toasted.error(
+          "Email Dapat Digunakan",
+          {
+            position:"top-center",
+            className:"rounded",
+            duration:1000,
+          }
+        );
+        self.email_unavailable=false;
+      }else{  
+        self.$toasted.error(
+        "Maaf, Email Sudah Terdaftar",
+        {
+          position:"top-center",
+          className:"rounded",
+          duration:1000,
+        }
+      );
+      self.email_unavailable=true;
+
+      }
+
+      console.log(response);
+ });
+  }
+}, --}}

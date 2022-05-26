@@ -54,6 +54,7 @@ class ProductController extends Controller
 
 
 
+
         $data['slug']  = Str::slug($request->name);
         Product::create($data);
 

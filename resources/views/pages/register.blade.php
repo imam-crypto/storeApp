@@ -11,11 +11,11 @@
             <form action="" class="mt-3">
               <div class="form-group">
                 <label>Full Name</label>
-                <input type="text" name="email" id="email" class="form-control is-valid" v-model="name" autofocus>
+                <input type="text" name="name" id="email" class="form-control is-valid" v-model="name" autofocus>
               </div>
               <div class="form-group">
                 <label>Email</label>
-                <input type="email" name="email" id="email" class="form-control is-invalid" v-model="email">
+                <input type="email" name="email" id="email" class="form-control is-invalid" v-model="email" @change="checkEmail()" :class="{'is-invalid' : this.email_unavailable}" autocomplete="email"> 
               </div>
               <div class="form-group">
                 <label>Password</label>
@@ -47,7 +47,7 @@
                   <option value="" disabled>Select Category</option>
                 </select>
               </div>
-              <a href="./dashboard.html" class="btn btn-success btn-block mt-4">Sign Up Now</a>
+              <button type="submit" class="btn btn-success btn-block mt-4" :disabled="this.email_unavailable" >Sign Up Now</button>
               <a href="./register.html" class="btn btn-signup btn-block mt-4">Back To Sign in </a>
             </form>
           </div>
@@ -90,6 +90,7 @@
 @push('addon-script')
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script src="https://unpkg.com/vue-toasted"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
 
 <script>
@@ -99,21 +100,57 @@
       el:'#register',
       mounted(){
       AOS.init();
-       this.$toasted.error(
-         "Maaf, Email Sudah Terdaftar",
-         {
-           position:"top-center",
-           className:"rounded",
-           duration:1000,
-         }
-       );
+       
       },
-      data:{
+      methods:{
+        checkEmail:function(){
+          var self = this;
+          axios.get('{{ route('api-register-check')}} ',{
+            params:{
+              email:this.email
+            }
+          })
+          .then(function (response) {
+            // handle success
+
+            if(response.data == 'Available'){
+              self.$toasted.error(
+                "Email Dapat Digunakan",
+                {
+                  position:"top-center",
+                  className:"rounded",
+                  duration:1000,
+                }
+              );
+              self.email_unavailable=false;
+            }else{
+              self.$toasted.error(
+              "Maaf, Email Sudah Terdaftar",
+              {
+                position:"top-center",
+                className:"rounded",
+                duration:1000,
+              }
+            );
+            self.email_unavailable=true;
+
+            }
+
+            console.log(response);
+  })
+        }
+      },
+      data(){
+        return {
+          {
         name:"Prabbs",
         email:"prabs@gmail.com",
         password:"",
         is_store_open:true,
-        store_name:""
+        store_name:"",
+        email_unavailable:false
+      }
+        }
       }
     });
 
